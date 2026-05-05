@@ -16,10 +16,8 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Fonts (theme-driven; default: editorial) -->
+  {{THEME_FONTS_LINK_HTML}}
 
   <!-- Precompiled Tailwind (no FOUC, no dev-mode warning) -->
   <link rel="stylesheet" href="/assets/tailwind.css" />
@@ -34,9 +32,12 @@
       header.sticky { position: static !important; }
       section { break-inside: avoid; }
     }
+    /* THEME_STYLES_CSS — block injected from themes/<name>.json#css.
+       For the default `editorial` theme this block is empty. */
+{{THEME_STYLES_CSS}}
   </style>
 </head>
-<body class="bg-white text-slate-900 antialiased">
+<body data-theme="{{THEME_NAME}}" class="bg-white text-slate-900 antialiased">
 
   <!-- STICKY HEADER — proposal context only, no actions -->
   <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70 no-print">

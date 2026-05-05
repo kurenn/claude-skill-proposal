@@ -1,0 +1,21 @@
+{
+  "name": "editorial",
+  "description": "Default. Editorial / press-style. Fraunces serif headlines + Inter body on white. Single brand color used as a quiet accent. Generalist — works for founders, execs, and most B2B buyers.",
+  "fit": {
+    "industries": ["saas", "agency_creative", "professional_services", "consulting", "implementation", "ecommerce", "other"],
+    "personas": ["founder", "executive", "generalist"]
+  },
+  "page_bg": "#ffffff",
+  "fonts_link_html": "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\" />",
+  "css": "/* editorial theme — defaults; intentionally empty. The base template + tailwind.css provide this look. */",
+  "brand_color_targets": [
+    "pull-quote left border",
+    "outcome metric numbers",
+    "milestone dates",
+    "checkmark glyphs",
+    "mitigation eyebrow",
+    "pricing headline",
+    "next-step email link",
+    "footer year"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "technical",
+  "description": "Dark editorial. IBM Plex Sans for display + body, JetBrains Mono for numerals, deep slate page background. Tabular monospace numbers throughout. Reads like internal engineering documentation — confident, precise, no decoration. Best for SaaS, dev-tools, and implementation deals where the buyer is technical.",
+  "fit": {
+    "industries": ["saas", "implementation"],
+    "personas": ["technical", "engineering", "platform", "cto", "ops"]
+  },
+  "page_bg": "#0B0F19",
+  "fonts_link_html": "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n  <link href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap\" rel=\"stylesheet\" />",
+  "css": "  body[data-theme=\"technical\"] { background: #0B0F19; color: #E5E7EB; font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif; }\n  body[data-theme=\"technical\"] .display { font-family: 'IBM Plex Sans', ui-sans-serif, sans-serif; font-weight: 600; letter-spacing: -0.01em; }\n  body[data-theme=\"technical\"] .num-marker { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }\n  /* surfaces */\n  body[data-theme=\"technical\"].bg-white,\n  body[data-theme=\"technical\"] .bg-white,\n  body[data-theme=\"technical\"] header.sticky { background: #0B0F19 !important; }\n  body[data-theme=\"technical\"] header.sticky { background: rgba(11,15,25,0.85) !important; border-color: #1F2937 !important; }\n  body[data-theme=\"technical\"] .bg-slate-50 { background: #111827 !important; }\n  /* text scale */\n  body[data-theme=\"technical\"] .text-slate-900 { color: #F1F5F9 !important; }\n  body[data-theme=\"technical\"] .text-slate-700 { color: #CBD5E1 !important; }\n  body[data-theme=\"technical\"] .text-slate-600 { color: #94A3B8 !important; }\n  body[data-theme=\"technical\"] .text-slate-500 { color: #64748B !important; }\n  body[data-theme=\"technical\"] .text-slate-400 { color: #475569 !important; }\n  body[data-theme=\"technical\"] .text-slate-300 { color: #334155 !important; }\n  /* borders + rules */\n  body[data-theme=\"technical\"] .border-slate-200 { border-color: #1F2937 !important; }\n  body[data-theme=\"technical\"] .rule { background: linear-gradient(to right, transparent, #1F2937, transparent) !important; }\n  /* eyebrows feel terminal-like */\n  body[data-theme=\"technical\"] .uppercase.tracking-\\[0\\.2em\\] { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.12em; }",
+  "brand_color_targets": [
+    "pull-quote left border",
+    "outcome metric numbers",
+    "milestone dates",
+    "checkmark glyphs",
+    "mitigation eyebrow",
+    "pricing headline",
+    "next-step email link",
+    "footer year"
+  ],
+  "wcag_note": "Brand color must be tested against #0B0F19 (dark background), not #FFFFFF. Step 3 should re-run the contrast check with the dark background as the comparison surface."
+}

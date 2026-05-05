@@ -1,7 +1,7 @@
 ---
 name: proposal
-description: Generate beautiful single-page client proposals as a document-format replacement for PDFs and Google Docs. Persists answers, fetches brand colors from the client's site (with WCAG contrast warnings), generates a Tailwind-built single-page HTML, and runs the `/critique` design skill via the Skill tool to grade and fix the output. Includes dynamic OG images for unfurls and version-history snapshots on revise. Use when the user says "create a proposal", "client proposal", "scope of work", "SOW", or "pitch document". Use `/proposal --revise <slug>` to update an existing proposal, or `/proposal --clone <slug>` to start a new one from an existing discovery.
-argument-hint: [client name | --revise <slug> | --clone <slug>]
+description: Generate beautiful single-page client proposals as a document-format replacement for PDFs and Google Docs. Persists answers, fetches brand colors from the client's site (with WCAG contrast warnings), generates a Tailwind-built single-page HTML, and runs the `/critique` design skill via the Skill tool to grade and fix the output. Includes dynamic OG images for unfurls and version-history snapshots on revise. Use when the user says "create a proposal", "client proposal", "scope of work", "SOW", or "pitch document". Use `/proposal --revise <slug>` to update an existing proposal, `/proposal --clone <slug>` to start a new one from an existing discovery, or `/proposal --theme <name>` to swap the visual theme (editorial, technical, minimal, icalia). The `--icalia` shorthand applies the Icalia Labs house theme — also the automatic fallback when the client has no brand identity of their own.
+argument-hint: [client name | --revise <slug> | --clone <slug>] [--theme editorial|technical|minimal|icalia | --icalia]
 ---
 
 # /proposal
@@ -26,6 +26,11 @@ tailwind.config.js                ← content paths for JIT
 discovery-schema.json             ← canonical schema for discovery.json
 extract-colors.sh                 ← multi-source brand color extractor (WCAG-aware)
 seller-defaults.json              ← persisted seller info — auto-loaded if present
+themes/
+  ├── editorial.json              ← default theme (Fraunces + Inter, white)
+  ├── technical.json              ← dark + IBM Plex + JetBrains Mono numerals
+  ├── minimal.json                ← Inter only, neutral grays, sentence-case eyebrows
+  └── icalia.json                 ← Icalia Labs house theme — Inter Black, navy + red, fixed left accent bar; auto-fallback when buyer has no brand
 examples/
   ├── saas-acme.html              ← reference: SaaS implementation pattern
   ├── agency-globex.html          ← reference: agency/creative pattern
@@ -58,15 +63,21 @@ vercel-starter/
 | `/proposal Acme Corp` | Same, with client name pre-filled |
 | `/proposal --revise <slug>` | Load `proposals/<slug>/discovery.json`, ask what's changed, snapshot current to `versions/v{n}.html`, regenerate, redeploy |
 | `/proposal --clone <slug>` | Load `proposals/<slug>/discovery.json` as a starting point, ask what's different, save to a NEW slug |
+| `/proposal --theme <name>` | Apply a visual theme at render time. `<name>` is one of `editorial` (default), `technical`, `minimal`, or `icalia`. Combinable with all of the above. |
+| `/proposal --icalia` | Shorthand for `--theme icalia`. Applies the Icalia Labs house theme (Inter Black display, Trebuchet eyebrows, navy + red, fixed left accent bar). Also the **automatic fallback** when the buyer has no brand identity surfaced during Step 3 (no extractable site, or seller declines all candidates). |
 
 ## The flow
 
 ```
 0. Bootstrap working dir         → scaffold vercel.json, assets, api/og.tsx
 1. Load seller-defaults.json     → auto-fill seller's company info (skip questions)
+1.6 Theme selection              → resolve --theme arg (or default editorial),
+                                   load themes/<name>.json, remember on project.theme
 2. Discovery (3 chunks)          → Setup batch → Story (1-by-1) → Scope (1-by-1)
 3. Brand color extraction        → multi-source w/ WCAG flag, present candidates
-4. Generate single-page HTML     → adapt template.html with discovery JSON
+                                   (compare against theme.page_bg, NOT always white)
+4. Generate single-page HTML     → adapt template.html with discovery JSON +
+                                   inject theme fonts link + theme css block
 5. Self-check + tone enforcement → strip banned words, regenerate-and-rank
 6. /critique design pass         → invoke critique skill VIA Skill TOOL (REQUIRED)
 7. Review with seller            → iterate
@@ -108,6 +119,62 @@ Schema for `seller-defaults.json`:
   }
 }
 ```
+
+## STEP 1.6 — Theme selection
+
+Themes control the **visual layer only** — typography, color scale, eyebrow treatment, page background. They do not change section structure, section order, the discovery questions, or any anti-pattern. Section #N is still section #N regardless of theme.
+
+### Resolve the theme
+
+1. If `--icalia` shorthand was passed → resolve to `icalia`.
+2. Else if `--theme <name>` was passed → use that name. Validate against the enum below.
+3. Else if `--revise` was used and `proposals/<slug>/discovery.json` already has `project.theme` → reuse it.
+4. Else if Step 3 (brand color extraction) returns **no usable brand** for the buyer (no website, or seller declines all candidates and there is no prior `project.theme`) → fall back to `icalia`. The Icalia theme defines `default_brand_color` `#CC3239` so the doc still has an accent without one being supplied. Tell the seller: *"No brand surfaced for the buyer — falling back to the `icalia` house theme. Pass `--theme editorial` or `--theme minimal` to override."*
+5. Else → default to `editorial`.
+
+Valid theme names (v1):
+
+| Name | Look | Best for |
+|---|---|---|
+| `editorial` *(default)* | Fraunces serif headlines + Inter body, white page, slate text, brand color as quiet accent. | Generalist — founders, execs, most B2B buyers. The current/legacy look. |
+| `technical` | IBM Plex Sans + JetBrains Mono numerals on a deep slate background (`#0B0F19`). Tabular monospace prices and dates. Reads like internal engineering documentation. | SaaS, dev-tools, implementation deals where the buyer is technical (CTO, eng-lead, platform). |
+| `minimal` | Inter for both display and body — no serif anywhere. Neutral-gray scale (instead of slate), sentence-case eyebrows (instead of uppercase tracked), tighter display tracking. | Design-conscious modern startups. When the proposal itself should feel minimal. |
+| `icalia` | Inter Black (900) display, Trebuchet MS eyebrow caps, white page with deep navy (`#1C2333`) inset surfaces and Icalia red (`#CC3239`) brand accent. Fixed 4px left red accent bar runs the full viewport as a continuous brand signal. Default brand color when none is supplied. | Icalia Labs house look. Buyers without brand identity (pre-launch, stealth, no website). When the seller wants the Icalia visual register (executive, restrained, factual). |
+
+If the user passes an unknown `--theme`, abort with: *"`--theme <name>` not recognized. Available themes: `editorial`, `technical`, `minimal`, `icalia`. Pass one of these or omit the flag for the editorial default."*
+
+### Load the theme spec
+
+```bash
+THEMES_DIR="$HOME/.claude/skills/proposal/themes"
+cat "$THEMES_DIR/<name>.json"
+```
+
+Each theme JSON exposes:
+- `page_bg` — used by Step 3 for the WCAG contrast pass
+- `fonts_link_html` — `<link>` markup for the theme's Google Fonts
+- `css` — a CSS string scoped to `body[data-theme="<name>"]` selectors that overrides the editorial defaults
+- `brand_color_targets` — descriptive list of where `--brand` is applied (kept consistent across themes for content parity)
+- `wcag_note` *(technical only)* — guidance on the dark-background contrast check
+
+### Persist the choice
+
+Set `project.theme` on `discovery.json` so:
+- `--revise` re-renders with the same theme by default (no need to repass `--theme`)
+- The audit trail shows which theme was used for each version
+
+### Industry-aware default suggestion (advisory only — do not auto-apply)
+
+If `--theme` was not passed, after Chunk A captures `industry`, the skill MAY suggest a non-default theme based on this map and ask the seller — but never silently override:
+
+| Industry | Suggested theme |
+|---|---|
+| `saas`, `implementation` | `technical` worth offering |
+| `agency_creative`, `ecommerce` | `minimal` worth offering |
+| Buyer has no brand / no website / pre-launch | `icalia` worth offering |
+| Everything else | `editorial` |
+
+The phrasing should be a single line: *"Industry is SaaS — want to use the `technical` theme (dark, IBM Plex, mono numerals) instead of the default editorial look? (Y/n)"*. If the seller declines, stay on `editorial`.
 
 ## STEP 2 — Discovery (three chunks)
 
@@ -191,8 +258,12 @@ The script returns 5–10 candidates with WCAG contrast flags:
 **Rules:**
 - Only pick a `✓ safe` candidate as PRIMARY (used on the brand button is gone, but emphasis numbers and price still inherit `--brand` color).
 - If the seller insists on a `⚠` color, use it as ACCENT only, never as PRIMARY.
-- If no website yet, default to `#0F172A` slate primary.
+- If no website yet (or no usable brand surfaces), and the active theme is `icalia`, default to `#CC3239` (Icalia red) as primary and `#1C2333` (navy) as the inset surface — both already declared by the theme's `default_brand_color` and `--icalia-navy` CSS variable.
+- If no website yet and a non-Icalia theme is active, default to `#0F172A` slate primary (or `#FFFFFF` text accent for the `technical` theme).
+- The unbranded-buyer fallback automatically promotes the active theme to `icalia` (see Step 1.6), so this path is rare.
 - Brand color is an accent, not a hero. Used only on: pull-quote left border, large outcome metrics, milestone dates, ✓ checkmarks, mitigation eyebrow, pricing headline, footer year. Everything else is grayscale.
+
+**Theme-aware contrast**: the WCAG check must compare the chosen brand color against the **theme's `page_bg`**, not always white. For the `technical` theme (`#0B0F19`), a hex like `#0B5FFF` that's "✓ safe on white" may fail on dark — re-test against the theme background and prefer brighter, higher-luminance candidates. Each theme JSON exposes `page_bg` for this lookup; the `technical.json` theme also includes a `wcag_note` with explicit guidance.
 
 Save to `discovery.json` under `brand`.
 
@@ -228,6 +299,10 @@ Read `template.html` and adapt with the `discovery.json` answers. **Do not rewri
 - `{{*_ENC}}` URL-encoded versions for OG meta + mailto subjects
 - `{{PROPOSAL_VERSION}}` (defaults to 1, increments on `--revise`)
 - `{{#if TERMS_INCLUDE}} ... {{/if}}` block — keep or strip based on `terms.include`
+- **Theme placeholders (from Step 1.6)**:
+  - `{{THEME_NAME}}` — value of `project.theme` (e.g., `editorial`, `technical`, `minimal`). Lands on `<body data-theme="...">`.
+  - `{{THEME_FONTS_LINK_HTML}}` — paste verbatim from `themes/<name>.json#fonts_link_html`. Replaces the legacy hardcoded Google Fonts `<link>`.
+  - `{{THEME_STYLES_CSS}}` — paste verbatim from `themes/<name>.json#css` into the inline `<style>` block. For `editorial`, this is intentionally empty (the base template + tailwind.css already provide the editorial defaults).
 
 **Output path**: `proposals/<slug>/index.html` plus `proposals/<slug>/discovery.json`.
 
@@ -365,6 +440,9 @@ The source proposal is left untouched. Cloning is the right move when you're sen
 - Stock imagery, gradient hero, "passionate" language
 - **Skipping `/critique` or simulating it instead of invoking** — Step 6 is REQUIRED via real Skill tool call
 - Adding back any active button (Accept, Share) — this skill ships read-only documents
+- **Editing theme JSON files inline to "tweak this one proposal"** — themes are shared assets. If a one-off variation is needed, copy the theme to a local file and pass its path; do not mutate `themes/*.json` for a single deal.
+- **Letting a theme change section structure or copy** — themes are visual-only. The 13 sections, the discovery questions, the B3 gate, the banned-word list, and the anti-patterns all stay constant across themes.
+- **Picking `--theme technical` without re-testing the brand color against `#0B0F19`** — the WCAG pass in Step 3 must use the theme's `page_bg`, not always white.
 
 ## Quality bar
 

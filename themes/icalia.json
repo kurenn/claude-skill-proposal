@@ -1,0 +1,26 @@
+{
+  "name": "icalia",
+  "description": "Icalia Labs house theme. Heavy Inter Black (900) display headlines, Trebuchet MS eyebrow caps, white page with deep navy (#1C2333) and Icalia red (#CC3239) as brand accents. Includes a fixed 4px left red accent bar that runs the full viewport height as a continuous brand signal. Best when sending from Icalia Labs and the buyer has no brand identity of their own to mirror, or when the seller explicitly wants the Icalia visual register (executive, restrained, factual).",
+  "fit": {
+    "industries": ["saas", "agency_creative", "professional_services", "consulting", "implementation", "ecommerce", "other"],
+    "personas": ["founder", "executive", "no-brand-yet", "icalia-default"]
+  },
+  "page_bg": "#ffffff",
+  "default_brand_color": "#CC3239",
+  "fonts_link_html": "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap\" rel=\"stylesheet\" />",
+  "css": "  body[data-theme=\"icalia\"] { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; --icalia-navy: #1C2333; --icalia-red: #CC3239; }\n  /* Display: Inter Black (900) — heavy, tight tracking */\n  body[data-theme=\"icalia\"] .display { font-family: 'Inter', ui-sans-serif, sans-serif; font-weight: 900; letter-spacing: -0.03em; }\n  /* Eyebrow labels: Trebuchet MS spaced caps (Icalia brand spec) */\n  body[data-theme=\"icalia\"] .uppercase.tracking-\\[0\\.2em\\],\n  body[data-theme=\"icalia\"] .uppercase.tracking-wider,\n  body[data-theme=\"icalia\"] .eyebrow { font-family: 'Trebuchet MS', Arial, sans-serif; letter-spacing: 0.16em; font-weight: 700; }\n  body[data-theme=\"icalia\"] .num-marker { font-variant-numeric: tabular-nums; }\n  /* Fixed 4px left red accent bar — continuous brand signal */\n  body[data-theme=\"icalia\"]::before { content: ''; position: fixed; left: 0; top: 0; bottom: 0; width: 4px; background: #CC3239; z-index: 200; pointer-events: none; }\n  @media print { body[data-theme=\"icalia\"]::before { display: none; } }\n  /* Inset surfaces use Icalia navy (cover, next-step, dark banners) */\n  body[data-theme=\"icalia\"] .bg-slate-900,\n  body[data-theme=\"icalia\"] .bg-icalia-navy { background: #1C2333 !important; }\n  /* Slate scale stays slate but pulled slightly cooler — keeps WCAG safe */\n  body[data-theme=\"icalia\"] .text-slate-900 { color: #0F172A !important; }\n  body[data-theme=\"icalia\"] .text-slate-700 { color: #334155 !important; }\n  body[data-theme=\"icalia\"] .text-slate-600 { color: #475569 !important; }\n  body[data-theme=\"icalia\"] .text-slate-500 { color: #64748B !important; }\n  /* slate-400 on white fails WCAG (2.6:1) — bump to slate-500 */\n  body[data-theme=\"icalia\"] .text-slate-400 { color: #64748B !important; }\n  /* Hyperlinks adopt the brand red */\n  body[data-theme=\"icalia\"] a:not(.no-brand) { color: #CC3239; }\n  body[data-theme=\"icalia\"] a:not(.no-brand):hover { color: #A82A30; }",
+  "brand_color_targets": [
+    "fixed left accent bar",
+    "H2 terminal-phrase emphasis",
+    "pull-quote left border",
+    "outcome metric numbers",
+    "milestone dates",
+    "checkmark glyphs",
+    "mitigation eyebrow",
+    "pricing headline",
+    "next-step email link",
+    "footer year"
+  ],
+  "fallback_brand_when_unidentified": true,
+  "wcag_note": "Default brand color #CC3239 has 5.14:1 contrast on white (passes WCAG AA for normal text) and 3.05:1 on the #1C2333 navy inset (passes AA for large text only — keep the red as accent on dark surfaces, not body copy). White on navy is 15.7:1. If a different brand is supplied via --brand or extracted from the buyer's site, re-run the contrast check against the white page_bg as usual."
+}

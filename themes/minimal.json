@@ -1,0 +1,21 @@
+{
+  "name": "minimal",
+  "description": "Sans-only. No serif anywhere. Inter for both display and body, tighter display tracking, neutral-gray scale instead of slate, sentence-case eyebrows instead of uppercase tracking. The page reads quieter and more contemporary than editorial. Best when the buyer is design-conscious or the product is itself minimalist.",
+  "fit": {
+    "industries": ["saas", "agency_creative", "ecommerce", "other"],
+    "personas": ["design-conscious", "modern-startup", "product"]
+  },
+  "page_bg": "#ffffff",
+  "fonts_link_html": "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\" />",
+  "css": "  body[data-theme=\"minimal\"] { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }\n  body[data-theme=\"minimal\"] .display { font-family: 'Inter', ui-sans-serif, sans-serif; font-weight: 700; letter-spacing: -0.035em; }\n  body[data-theme=\"minimal\"] .num-marker { font-variant-numeric: tabular-nums; }\n  /* neutral palette swap (slate → neutral) */\n  body[data-theme=\"minimal\"] .text-slate-900 { color: #0a0a0a !important; }\n  body[data-theme=\"minimal\"] .text-slate-700 { color: #404040 !important; }\n  body[data-theme=\"minimal\"] .text-slate-600 { color: #525252 !important; }\n  body[data-theme=\"minimal\"] .text-slate-500 { color: #737373 !important; }\n  body[data-theme=\"minimal\"] .text-slate-400 { color: #a3a3a3 !important; }\n  body[data-theme=\"minimal\"] .text-slate-300 { color: #d4d4d4 !important; }\n  body[data-theme=\"minimal\"] .border-slate-200 { border-color: #e5e5e5 !important; }\n  body[data-theme=\"minimal\"] .bg-slate-50 { background: #fafafa !important; }\n  body[data-theme=\"minimal\"] .rule { background: linear-gradient(to right, transparent, #f5f5f5, transparent) !important; }\n  /* eyebrows: drop the uppercase + wide tracking for a quieter sentence-case look */\n  body[data-theme=\"minimal\"] .uppercase.tracking-\\[0\\.2em\\] { text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 0.8125rem; }\n  body[data-theme=\"minimal\"] .uppercase.tracking-wider { text-transform: none; letter-spacing: 0; }",
+  "brand_color_targets": [
+    "pull-quote left border",
+    "outcome metric numbers",
+    "milestone dates",
+    "checkmark glyphs",
+    "mitigation eyebrow",
+    "pricing headline",
+    "next-step email link",
+    "footer year"
+  ]
+}

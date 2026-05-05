@@ -65,7 +65,13 @@
         "valid_until_date": { "type": "string", "format": "date" },
         "proposal_date": { "type": "string", "format": "date" },
         "version": { "type": "integer", "default": 1 },
-        "reference": { "type": "string", "description": "Internal reference, e.g., PRO-2026-0421" }
+        "reference": { "type": "string", "description": "Internal reference, e.g., PRO-2026-0421" },
+        "theme": {
+          "type": "string",
+          "enum": ["editorial", "technical", "minimal"],
+          "default": "editorial",
+          "description": "Visual theme applied at render time. Controls typography, color scale, and treatments — not section structure or content. Persisted so --revise re-renders with the same theme unless --theme is passed again."
+        }
       }
     },
     "situation": {

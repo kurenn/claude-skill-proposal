@@ -3,19 +3,25 @@
 A Claude Code skill that turns a sales conversation into a beautiful, single-page client proposal — branded, restrained, deployable. Document-format replacement for PDFs and Google Docs.
 
 ```
-/proposal                     # full new flow (discovery → render → critique)
-/proposal "Acme Corp"         # pre-fill the client name
-/proposal --revise <slug>     # update an existing proposal, snapshot prior version
-/proposal --clone <slug>      # start a new proposal from an existing one
+/proposal                                    # full new flow (discovery → render → critique)
+/proposal "Acme Corp"                        # pre-fill the client name
+/proposal --meetings <url|path>,...          # draft discovery from Circleback transcripts or meeting notes
+/proposal --revise <slug>                    # update an existing proposal, snapshot prior version
+/proposal --revise <slug> --meetings <url>   # revise with new meeting context
+/proposal --clone <slug>                     # start a new proposal from an existing one
 ```
 
 ## What it does
 
-Walks the seller through a 3-chunk discovery interview (setup → buyer story → scope), extracts brand colors from the client's website (with WCAG contrast warnings), generates a Tailwind-built single-page HTML proposal from a canonical template, runs the `/critique` design skill to grade and fix the output, and deploys to Vercel.
+Walks the seller through a 3-chunk discovery interview (setup → buyer story → scope), optionally sourcing answers from Circleback transcripts or meeting notes via the `--meetings` flag. Extracts brand colors from the client's website (with WCAG contrast warnings), generates a Tailwind-built single-page HTML proposal from a canonical template, runs the `/critique` design skill to grade and fix the output, and deploys to Vercel.
 
 The proposal itself is **read-only** — there are no live buttons, no acceptance tracking, no analytics. The seller emails or pastes a URL; the buyer reads it like a beautifully-typeset PDF and replies through the existing email thread.
 
 Designed around one principle: **a proposal does not close a deal — the conversation does**. The proposal is the artifact your champion hands to people who weren't in the room (CFO, skeptical co-founder, procurement). Every section earns its place by pre-empting an objection the champion will face.
+
+### New in this version
+
+- **Transcript ingestion** — pass `--meetings <circleback-url|local-file>,...` to draft discovery answers from prior conversations instead of re-interviewing the seller end-to-end. Supports Circleback URLs (via the MCP connector) and local meeting notes (`.txt`, `.md`, `.vtt`, `.srt`, `.json`). Surfaces cross-meeting conflicts for the seller to resolve. Works standalone or with `--revise` to layer new context onto existing proposals.
 
 ## Install
 
@@ -52,6 +58,7 @@ Your local `seller-defaults.json` (gitignored) and any generated proposals in wo
 |---|---|---|
 | [Claude Code](https://claude.com/claude-code) | Required | The harness that runs skills |
 | [impeccable.style](https://impeccable.style) — `/critique` skill | **Required** | Step 6 of the flow invokes the `/critique` skill via the Skill tool to grade visual hierarchy, information architecture, and emotional resonance, then iteratively applies fixes. Without it, the skill will fall back to a manual rubric, but the output quality drops noticeably. Install via [impeccable.style](https://impeccable.style). |
+| Circleback MCP connector | Optional | Required only if using `--meetings` with Circleback URLs. If you only pass local file paths (`.md`, `.txt`, `.vtt`, `.srt`, `.json`), no connector is needed. |
 | [Vercel CLI](https://vercel.com/docs/cli) | Optional | For one-command deploy of generated proposals. Install with `npm i -g vercel` |
 | Node.js + Tailwind CSS | Optional | Only needed if you edit `template.html` and want to rebuild `vercel-starter/assets/tailwind.css`. The compiled CSS is shipped — most users never need this. |
 
@@ -66,7 +73,7 @@ The flow gracefully degrades: without Vercel CLI you can still generate proposal
 | `examples/*.html` | Reference proposals across industries (SaaS, agency, services). Read these to anchor your taste before editing the template. |
 | `vercel-starter/vercel.json` | Deploy config: clean URLs, security headers, asset caching |
 | `vercel-starter/api/og.tsx` | Dynamic 1200×630 Open Graph image for Slack/email unfurls |
-| `discovery-schema.json` | Canonical schema for `proposals/<slug>/discovery.json` — what the discovery interview captures |
+| `discovery-schema.json` | Canonical schema for `proposals/<slug>/discovery.json` — what the discovery interview captures, including an audit trail of transcript sources (for `--meetings`) |
 
 ### Rebuilding the precompiled CSS
 
@@ -94,12 +101,13 @@ A shipping-ready proposal hits all of these:
 
 - All template placeholders filled (no leftover `{{...}}` tokens)
 - Banned-word scan returns zero hits (no "synergy", "leverage", "passionate about", etc.)
-- The buyer's actual words appear in the situation section
+- The buyer's actual words appear in the situation section (even when sourced from `--meetings` transcripts)
 - Pricing is on the page (not "contact us")
 - Each section ties to a specific objection it pre-empts for the champion
 - `/critique` rates every dimension 8+/10
 - Brand color passes WCAG AA contrast on its given context (the extractor flags this)
 - Mobile view at 375px doesn't break the timeline or pricing block
+- If `--meetings` was used, cross-meeting conflicts are surfaced and resolved by the seller
 
 ## License
 

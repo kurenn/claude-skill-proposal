@@ -6,6 +6,22 @@
   "required": ["client", "champion", "situation", "outcome", "approach", "deliverables", "timeline", "investment", "next_step", "company"],
   "properties": {
     "schema_version": { "type": "string", "const": "1.0" },
+    "sources": {
+      "type": "array",
+      "description": "Audit trail of transcripts and notes that informed this discovery. Populated when /proposal is invoked with --meetings. Internal only — not rendered in the proposal HTML. Append-only across revisions so the full history is preserved.",
+      "items": {
+        "type": "object",
+        "required": ["source_type", "ref", "ingested_at"],
+        "properties": {
+          "source_type": { "type": "string", "enum": ["circleback", "file"] },
+          "ref": { "type": "string", "description": "Original Circleback URL or local file path as passed to --meetings." },
+          "meeting_date": { "type": "string", "format": "date", "description": "Date of the meeting, when known. Used for ordering and recency-based conflict context." },
+          "ingested_at": { "type": "string", "format": "date-time", "description": "When this source was ingested by the skill." },
+          "participants": { "type": "array", "items": { "type": "string" } },
+          "applied_to_version": { "type": "integer", "description": "The proposal version that first incorporated this source. Lets you trace which transcripts informed which version." }
+        }
+      }
+    },
     "industry": {
       "type": "string",
       "enum": ["saas", "agency_creative", "professional_services", "consulting", "implementation", "ecommerce", "other"],
